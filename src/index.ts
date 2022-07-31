@@ -1,30 +1,87 @@
 import TelegramBot from "node-telegram-bot-api";
+import { Angel } from "./classes/Angel";
+import { Mortal } from "./classes/Mortal";
+import { Store } from "./classes/Store";
+import { ChatResponse, Message, Role } from "./types";
 
-// replace the value below with the Telegram token you receive from @BotFather
 const token = process.env.TELEGRAM_BOT_TOKEN || "YOUR TELEGRAM BOT TOKEN";
-
-// Create a bot that uses 'polling' to fetch new updates
 const bot = new TelegramBot(token, { polling: true });
 
-// Matches "/echo [whatever]"
-bot.onText(/\/echo (.+)/, (msg, match) => {
-  // 'msg' is the received Message from Telegram
-  // 'match' is the result of executing the regexp above on the text content
-  // of the message
+const store = new Store();
 
-  if (!match) throw new Error("regex not matched");
-  const chatId = msg.chat.id;
-  const resp = match[1]; // the captured "whatever"
-
-  // send back the matched "whatever" to the chat
-  bot.sendMessage(chatId, resp);
+store.eventEmitter.addListener("addMessage", (message: Message) => {
+  console.log({ message });
 });
 
-// Listen for any kind of message. There are different kinds of
-// messages.
-bot.on("message", (msg) => {
-  const chatId = msg.chat.id;
+function getRole(message: TelegramBot.Message): Role {
+  // TODO: check store to see if an user is mortal or angel
+  if ((message.text || "").indexOf("/") >= 0) {
+    return "angel";
+  }
+  return "mortal";
+}
 
-  // send a message to the chat acknowledging receipt of their message
-  bot.sendMessage(chatId, "Received your message");
+async function getChatResponse(
+  message: TelegramBot.Message
+): Promise<ChatResponse> {
+  const chatId = message.chat.id;
+  const fromId = message.from?.id;
+  const messageText = message.text;
+  if (!fromId || !messageText) return { type: "noop" };
+
+  try {
+    const role = getRole(message);
+    switch (role) {
+      case "mortal":
+        return await Mortal.reply({ store, chatId, message: messageText });
+      case "angel":
+        return await Angel.reply({
+          store,
+          chatId,
+          message: messageText,
+          fromId,
+        });
+      default:
+        throw new Error(`unknown role ${JSON.stringify({ role })}`);
+    }
+  } catch (error) {
+    return {
+      type: "send",
+      payload: {
+        chatId,
+        message: error instanceof Error ? error.message : `${error}`,
+      },
+    };
+  }
+}
+
+bot.on("message", async (message) => {
+  const chatResponse = await getChatResponse(message);
+
+  switch (chatResponse.type) {
+    case "noop":
+      break;
+    case "send": {
+      await bot.sendMessage(
+        chatResponse.payload.chatId,
+        chatResponse.payload.message
+      );
+      break;
+    }
+    default:
+      throw new Error(`unknown type ${JSON.stringify({ chatResponse })}`);
+  }
+});
+
+store.eventEmitter.on("addMessage", async (message: Message) => {
+  if (message.fromAngelId) return;
+  const subscriptions = await store.selectSubscriptions({
+    filter: { event: "mortalNewMessage" },
+  });
+  subscriptions.forEach(({ chatId }) => {
+    bot.sendMessage(
+      chatId,
+      `Received a message from mortal ${JSON.stringify({ message })}`
+    );
+  });
 });
