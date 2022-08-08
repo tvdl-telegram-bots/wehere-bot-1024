@@ -6,22 +6,43 @@ export type ChatResponse =
     }
   | {
       type: "send";
-      payload: {
-        chatId: number;
-        message: string;
-      };
+      payload: { toUserId: number; text: string };
+    }
+  | {
+      type: "reply";
+      payload: string;
+    }
+  | {
+      type: "block";
+      payload: ChatResponse[];
     };
 
 export type Message = {
-  timestamp: number; // primary key
-  chatId: number;
-  fromAngelId: number | null;
-  message: string;
+  timestamp: number;
+  fromUserId: number | null;
+  toUserId: number | null;
+  text: string;
 };
 
-export type SubscriptionEvent = "mortalNewMessage";
+export type CommandContext = {
+  chatId: number;
+  fromUserId: number;
+  text: string;
+  args: string[];
+};
 
-export type Subscription = {
-  chatId: number; // co-primary key
-  event: SubscriptionEvent;
+export type Command = {
+  match: (args: string[]) => boolean;
+  handler: (context: CommandContext) => Promise<ChatResponse>;
+};
+
+export type Angel = {
+  userId: number;
+  isOnline: boolean;
+  replyingTo: number | null;
+};
+
+export type Chat = {
+  userId: number;
+  chatId: number;
 };

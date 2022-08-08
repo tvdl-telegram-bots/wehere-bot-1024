@@ -1,87 +1,50 @@
+// this import must be at the top
+import { DB_CONN_STRING, DB_NAME, TELEGRAM_BOT_TOKEN } from "./config";
+
 import TelegramBot from "node-telegram-bot-api";
-import { Angel } from "./classes/Angel";
-import { Mortal } from "./classes/Mortal";
-import { Store } from "./classes/Store";
-import { ChatResponse, Message, Role } from "./types";
 
-const token = process.env.TELEGRAM_BOT_TOKEN || "YOUR TELEGRAM BOT TOKEN";
-const bot = new TelegramBot(token, { polling: true });
+import { CommandDefault } from "./classes/commands/CommandDefault";
+import { CommandGet } from "./classes/commands/CommandGet";
+import { CommandGetOnlineAngels } from "./classes/commands/CommandGetOnlineAngels";
+import { CommandReplyTo } from "./classes/commands/CommandReplyTo";
+import { CommandSet } from "./classes/commands/CommandSet";
+import { CommandSetAngelOffline } from "./classes/commands/CommandSetAngelOffline";
+import { CommandSetAngelOnline } from "./classes/commands/CommandSetAngelOnline";
+import { CommandStatus } from "./classes/commands/CommandStatus";
+import { MongoClient } from "mongodb";
+import { Router } from "./classes/Router";
+import { Stateful } from "./classes/Stateful";
+import { CommandGetLastMessages } from "./classes/commands/CommandGetLastMessages";
 
-const store = new Store();
+async function main() {
+  const client = await MongoClient.connect(DB_CONN_STRING);
+  const db = client.db(DB_NAME);
+  const stateful = new Stateful({ db });
+  console.log("Connected to DB.");
 
-store.eventEmitter.addListener("addMessage", (message: Message) => {
-  console.log({ message });
-});
+  const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
 
-function getRole(message: TelegramBot.Message): Role {
-  // TODO: check store to see if an user is mortal or angel
-  if ((message.text || "").indexOf("/") >= 0) {
-    return "angel";
-  }
-  return "mortal";
+  const router = new Router({
+    commands: [
+      new CommandSet({ stateful }),
+      new CommandGet({ stateful }),
+      new CommandStatus({ stateful }),
+      new CommandSetAngelOnline({ stateful }),
+      new CommandSetAngelOffline({ stateful }),
+      new CommandGetOnlineAngels({ stateful }),
+      new CommandDefault({ stateful }),
+      new CommandReplyTo({ stateful }),
+      new CommandGetLastMessages({ stateful }),
+    ],
+    bot,
+    stateful,
+  });
+
+  console.log("Listening for events...");
+
+  bot.on("message", async (message) => {
+    await router.handleMessage(message);
+  });
 }
 
-async function getChatResponse(
-  message: TelegramBot.Message
-): Promise<ChatResponse> {
-  const chatId = message.chat.id;
-  const fromId = message.from?.id;
-  const messageText = message.text;
-  if (!fromId || !messageText) return { type: "noop" };
-
-  try {
-    const role = getRole(message);
-    switch (role) {
-      case "mortal":
-        return await Mortal.reply({ store, chatId, message: messageText });
-      case "angel":
-        return await Angel.reply({
-          store,
-          chatId,
-          message: messageText,
-          fromId,
-        });
-      default:
-        throw new Error(`unknown role ${JSON.stringify({ role })}`);
-    }
-  } catch (error) {
-    return {
-      type: "send",
-      payload: {
-        chatId,
-        message: error instanceof Error ? error.message : `${error}`,
-      },
-    };
-  }
-}
-
-bot.on("message", async (message) => {
-  const chatResponse = await getChatResponse(message);
-
-  switch (chatResponse.type) {
-    case "noop":
-      break;
-    case "send": {
-      await bot.sendMessage(
-        chatResponse.payload.chatId,
-        chatResponse.payload.message
-      );
-      break;
-    }
-    default:
-      throw new Error(`unknown type ${JSON.stringify({ chatResponse })}`);
-  }
-});
-
-store.eventEmitter.on("addMessage", async (message: Message) => {
-  if (message.fromAngelId) return;
-  const subscriptions = await store.selectSubscriptions({
-    filter: { event: "mortalNewMessage" },
-  });
-  subscriptions.forEach(({ chatId }) => {
-    bot.sendMessage(
-      chatId,
-      `Received a message from mortal ${JSON.stringify({ message })}`
-    );
-  });
-});
+main();
