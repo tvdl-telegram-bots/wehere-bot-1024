@@ -16,6 +16,7 @@ export const start: CommandHandler = async (stateful, { fromUserId }) => {
       return {
         type: "reply",
         payload: [
+          stateful.t("msg_hello"),
           `Hello ${fromUserId}!`,
           `Just type your question. We will be notified and answer you as soon as possible`,
         ].join("\n"),

@@ -2,6 +2,7 @@
 import { DB_CONN_STRING, DB_NAME, TELEGRAM_BOT_TOKEN } from "./config";
 
 import TelegramBot from "node-telegram-bot-api";
+import * as I18next from "i18next";
 
 import { CommandDefault } from "./classes/commands/CommandDefault";
 import { CommandReplyTo } from "./classes/commands/CommandReplyTo";
@@ -16,12 +17,32 @@ import { get_role, set_role, unset_role } from "./new-commands/roles";
 import { get_online_angels } from "./new-commands/angels";
 import { hide_debug, show_debug, start, status } from "./new-commands/general";
 
-async function main() {
+import { translations } from "./translations";
+
+async function getI18n() {
+  const i18n = I18next.createInstance();
+  await i18n.init({
+    fallbackLng: "en",
+    supportedLngs: ["en", "vi"],
+    resources: {
+      en: { translation: translations.en },
+      vi: { translation: translations.vi },
+    },
+    debug: true,
+  });
+  return i18n;
+}
+
+async function getDb() {
   const client = await MongoClient.connect(DB_CONN_STRING);
   const db = client.db(DB_NAME);
-  const stateful = new Stateful({ db });
-  console.log("Connected to DB.");
+  return db;
+}
 
+async function main() {
+  const db = await getDb();
+  const i18n = await getI18n();
+  const stateful = new Stateful({ db, i18n });
   const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
 
   const router = new Router({

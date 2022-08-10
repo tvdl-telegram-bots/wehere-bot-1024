@@ -1,11 +1,16 @@
+import * as I18next from "i18next";
 import { Db } from "mongodb";
 import { Angel, Chat, Message, Role } from "../types";
 import { expectInteger, expectString } from "../utils/assert";
 
+type Language = "en" | "vi";
+
 export class Stateful {
   private db: Db;
-  constructor({ db }: { db: Db }) {
+  private i18n: I18next.i18n;
+  constructor({ db, i18n }: { db: Db; i18n: I18next.i18n }) {
     this.db = db;
+    this.i18n = i18n;
   }
 
   async setUserVariable(update: {
@@ -111,5 +116,10 @@ export class Stateful {
       .sort({ timestamp: -1 })
       .limit(limit)
       .toArray()) as unknown as Message[];
+  }
+
+  t(keys: string | string[], options?: I18next.TOptions): string {
+    const language = "vi"; // TODO: do not hard-code
+    return this.i18n.t(keys, { lng: language, ...options });
   }
 }

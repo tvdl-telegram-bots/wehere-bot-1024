@@ -1,12 +1,7 @@
 import { assert } from "console";
 import { ChatResponse, Command, CommandContext } from "../../types";
 import { expectNonEmptyString } from "../../utils/assert";
-import {
-  EMOJI_ANGEL,
-  EMOJI_INBOX,
-  EMOJI_MORTAL,
-  EMOJI_OUTBOX,
-} from "../../utils/emojis";
+import { EMOJI_ANGEL, EMOJI_MORTAL } from "../../utils/emojis";
 import { Stateful } from "../Stateful";
 
 export class CommandDefault implements Command {
