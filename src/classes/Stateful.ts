@@ -1,5 +1,6 @@
 import { Db } from "mongodb";
 import { Angel, Chat, Message, Role } from "../types";
+import { expectInteger, expectString } from "../utils/assert";
 
 export class Stateful {
   private db: Db;
@@ -7,41 +8,40 @@ export class Stateful {
     this.db = db;
   }
 
-  async setChatVariable({
-    chatId,
-    key,
-    value,
-  }: {
-    chatId: number;
+  async setUserVariable(update: {
+    userId: number;
     key: string;
     value: string;
   }) {
     await this.db
-      .collection("env")
+      .collection("uservars")
       .updateOne(
-        { chatId, key },
-        { $set: { chatId, key, value } },
+        { userId: update.userId, key: update.key },
+        { $set: update },
         { upsert: true }
       );
   }
 
-  async getChatVariable({ chatId, key }: { chatId: number; key: string }) {
-    const row = await this.db.collection("env").findOne({ chatId, key });
-    return row ? row.value : undefined;
+  async unsetUserVariable(filter: { userId: number; key: string }) {
+    await this.db.collection("uservars").deleteOne(filter);
   }
 
-  async getRole({
-    userId,
-    chatId,
-  }: {
+  async getUserVariable(filter: {
     userId: number;
-    chatId: number;
-  }): Promise<Role> {
-    const customRole = await this.getChatVariable({ chatId, key: "role" });
-    if (["angel", "mortal"].includes(customRole)) {
+    key: string;
+  }): Promise<string | undefined> {
+    const doc = await this.db.collection("uservars").findOne(filter);
+    return doc ? expectString(doc.value) : undefined;
+  }
+
+  async getRole({ userId }: { userId: number }): Promise<Role> {
+    const customRole = await this.getUserVariable({ userId, key: "role" });
+    if (customRole === "angel" || customRole === "mortal") {
       return customRole;
     }
-    return [-1].includes(userId) ? "angel" : "mortal";
+
+    const angel = await this.getAngel({ userId });
+    return angel ? "angel" : "mortal";
   }
 
   async addMessage(message: Message) {
@@ -83,6 +83,13 @@ export class Stateful {
     return (await this.db
       .collection("chats")
       .findOne({ userId })) as unknown as Chat | undefined;
+  }
+
+  async getChatId({ userId }: { userId: number }) {
+    const chat = (await this.db
+      .collection("chats")
+      .findOne({ userId })) as unknown as Chat | undefined;
+    return chat ? expectInteger(chat.chatId) : undefined;
   }
 
   async setAngelReplyingTo({

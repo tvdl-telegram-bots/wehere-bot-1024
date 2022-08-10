@@ -1,6 +1,6 @@
 # wehere-bot-1024
 
-A Telegram bot for WeHere project.
+👮 A Telegram bot for WeHere project 🧑
 
 ## Installing Dependencies
 

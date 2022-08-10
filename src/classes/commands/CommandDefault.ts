@@ -1,6 +1,12 @@
 import { assert } from "console";
 import { ChatResponse, Command, CommandContext } from "../../types";
 import { expectNonEmptyString } from "../../utils/assert";
+import {
+  EMOJI_ANGEL,
+  EMOJI_INBOX,
+  EMOJI_MORTAL,
+  EMOJI_OUTBOX,
+} from "../../utils/emojis";
 import { Stateful } from "../Stateful";
 
 export class CommandDefault implements Command {
@@ -14,14 +20,10 @@ export class CommandDefault implements Command {
     return args[0] === "/default";
   }
 
-  async handler({
-    args,
-    chatId,
-    fromUserId,
-  }: CommandContext): Promise<ChatResponse> {
+  async handler({ args, fromUserId }: CommandContext): Promise<ChatResponse> {
     assert(args.length === 2);
     const content = expectNonEmptyString(args[1]);
-    const role = await this.stateful.getRole({ userId: fromUserId, chatId });
+    const role = await this.stateful.getRole({ userId: fromUserId });
     switch (role) {
       case "angel": {
         const angel = await this.stateful.getAngel({ userId: fromUserId });
@@ -61,7 +63,7 @@ export class CommandDefault implements Command {
                     type: "send",
                     payload: {
                       toUserId: otherAngel.userId,
-                      text: `To ${angel.replyingTo}: ${content}`,
+                      text: `[${angel.replyingTo}] ${EMOJI_ANGEL}: ${content}`,
                     },
                   };
                 }
@@ -90,7 +92,7 @@ export class CommandDefault implements Command {
                 type: "send",
                 payload: {
                   toUserId: angel.userId,
-                  text: `From ${fromUserId}: ${content}`,
+                  text: `[${fromUserId}] ${EMOJI_MORTAL}: ${content}`,
                 },
               };
             }
