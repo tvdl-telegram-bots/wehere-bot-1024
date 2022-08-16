@@ -1,5 +1,6 @@
 import { CommandHandler } from "../classes/Router";
 import { UserError } from "../types";
+import { getUsername } from "../utils/usernames";
 
 export const start: CommandHandler = async (stateful, { fromUserId }) => {
   const role = await stateful.getRole({ userId: fromUserId });
@@ -42,7 +43,7 @@ export const status: CommandHandler = async (
     case "mortal": {
       return {
         type: "reply",
-        payload: `Hello ${fromUserId}!`,
+        payload: `Hello ${getUsername(fromUserId)}!`,
         debugInfo: [{ fromUserId, role }],
       };
     }
@@ -53,10 +54,10 @@ export const status: CommandHandler = async (
       return {
         type: "reply",
         payload: [
-          `Hello angel ${fromUserId}!`,
+          `Hello angel ${getUsername(fromUserId)}!`,
           angel.isOnline ? `You are now online.` : `You are now offline.`,
           angel.replyingTo
-            ? `You are replying to ${angel.replyingTo}.`
+            ? `You are replying to ${getUsername(angel.replyingTo)}.`
             : `You are not replying to any mortal.`,
           "",
           angel.isOnline

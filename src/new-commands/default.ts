@@ -3,6 +3,7 @@ import { Stateful } from "../classes/Stateful";
 import { ChatResponse, UserError } from "../types";
 import { expectNonEmptyString } from "../utils/assert";
 import { EMOJI_ANGEL, EMOJI_MORTAL } from "../utils/emojis";
+import { getUsername } from "../utils/usernames";
 
 async function handleMessageFromAngel(
   content: string,
@@ -25,17 +26,18 @@ async function handleMessageFromAngel(
     toUserId: angel.replyingTo,
     text: content,
   });
+  const mortalUserId = angel.replyingTo;
   const onlineAngels = await stateful.getOnlineAngels();
   const sendingMessageToMortal: ChatResponse = {
     type: "send",
-    payload: { toUserId: angel.replyingTo, text: content },
+    payload: { toUserId: mortalUserId, text: content },
   };
   const sendingMessagesToOnlineAngels: ChatResponse[] = onlineAngels.map(
     (thatAngel) => ({
       type: "send",
       payload: {
         toUserId: thatAngel.userId,
-        text: `[${angel.replyingTo}] ${EMOJI_ANGEL}: ${content}`,
+        text: `[${getUsername(mortalUserId)}] ${EMOJI_ANGEL}: ${content}`,
       },
     })
   );
@@ -62,7 +64,7 @@ async function handleMessageFromMortal(
       type: "send",
       payload: {
         toUserId: thatAngel.userId,
-        text: `[${fromUserId}] ${EMOJI_MORTAL}: ${content}`,
+        text: `[${getUsername(fromUserId)}] ${EMOJI_MORTAL}: ${content}`,
       },
     })
   );
