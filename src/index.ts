@@ -4,7 +4,6 @@ import { DB_CONN_STRING, DB_NAME, TELEGRAM_BOT_TOKEN } from "./config";
 import TelegramBot from "node-telegram-bot-api";
 import * as I18next from "i18next";
 
-import { CommandDefault } from "./classes/commands/CommandDefault";
 import { CommandReplyTo } from "./classes/commands/CommandReplyTo";
 import { CommandSetAngelOffline } from "./classes/commands/CommandSetAngelOffline";
 import { CommandSetAngelOnline } from "./classes/commands/CommandSetAngelOnline";
@@ -18,6 +17,7 @@ import { get_online_angels } from "./new-commands/angels";
 import { hide_debug, show_debug, start, status } from "./new-commands/general";
 
 import { translations } from "./translations";
+import { default_ } from "./new-commands/default";
 
 async function getI18n() {
   const i18n = I18next.createInstance();
@@ -55,13 +55,13 @@ async function main() {
       ["/get_online_angels", get_online_angels],
       ["/show_debug", show_debug],
       ["/hide_debug", hide_debug],
+      ["/default", default_],
     ],
     commands: [
       new CommandSetAngelOnline({ stateful }),
       new CommandSetAngelOffline({ stateful }),
       new CommandReplyTo({ stateful }),
       new CommandGetLastMessages({ stateful }),
-      new CommandDefault({ stateful }),
     ],
     bot,
     stateful,
