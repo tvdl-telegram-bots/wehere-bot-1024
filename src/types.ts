@@ -11,7 +11,7 @@ export type ChatResponse =
   | {
       type: "reply";
       payload: string;
-      debugInfo?: unknown[];
+      debugInfo?: unknown;
     }
   | {
       type: "block";
@@ -48,12 +48,3 @@ export type Chat = {
   userId: number;
   chatId: number;
 };
-
-export class UserError extends Error {
-  debugInfo: unknown[] | undefined;
-
-  constructor(text: string, debugInfo?: unknown[]) {
-    super(text);
-    this.debugInfo = debugInfo;
-  }
-}

@@ -1,5 +1,5 @@
 import { CommandHandler } from "../classes/Router";
-import { UserError } from "../types";
+import { UserError } from "../errors";
 
 export const get_online_angels: CommandHandler = async (stateful, { args }) => {
   if (args.length !== 1) {
@@ -13,7 +13,7 @@ export const get_online_angels: CommandHandler = async (stateful, { args }) => {
         ? "No online angels :("
         : `${angels.length} angels are online:\n\n` +
           angels.map((angel) => `${angel.userId}`).join("\n"),
-    debugInfo: [angels],
+    debugInfo: { angels },
   };
 };
 

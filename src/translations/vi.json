@@ -1,3 +1,10 @@
 {
-  "msg_hello": "Xin chào!"
+  "msg_hello": "Xin chào!",
+  "msg_hello_username": "Xin chào {{username}}!",
+  "msg_you_not_angel": "Bạn không phải là một angel.",
+  "msg_invalid_syntax": "Sai cú pháp. {{syntax}}",
+  "msg_userid_of_username_is": "Userid của {{username}} là {{userid}}.",
+  "msg_cannot_get_username": "Không thể lấy username.",
+  "msg_username_of_userid_is": "Username của {{userid}} là {{username}}.",
+  "msg_cannot_get_userid": "Không thể lấy userid."
 }

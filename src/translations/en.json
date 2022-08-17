@@ -1,3 +1,10 @@
 {
-  "msg_hello": "Hello!"
+  "msg_hello": "Hello!",
+  "msg_hello_username": "Hello {{username}}!",
+  "msg_you_not_angel": "You are not an angel.",
+  "msg_invalid_syntax": "Invalid syntax. {{syntax}}",
+  "msg_userid_of_username_is": "Userid of {{username}} is {{userid}}.",
+  "msg_cannot_get_username": "Cannot get username.",
+  "msg_username_of_userid_is": "Username of {{userid}} is {{username}}.",
+  "msg_cannot_get_userid": "Cannot get userid"
 }

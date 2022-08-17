@@ -1,5 +1,5 @@
 import { CommandHandler } from "../classes/Router";
-import { UserError } from "../types";
+import { UserError } from "../errors";
 import { getUsername } from "../utils/usernames";
 
 export const start: CommandHandler = async (stateful, { fromUserId }) => {
@@ -43,14 +43,17 @@ export const status: CommandHandler = async (
     case "mortal": {
       return {
         type: "reply",
-        payload: `Hello ${getUsername(fromUserId)}!`,
-        debugInfo: [{ fromUserId, role }],
+        payload: stateful.t("msg_hello_username", {
+          username: getUsername(fromUserId),
+        }),
+        debugInfo: { fromUserId, role },
       };
     }
     case "angel": {
       const angel = await stateful.getAngel({ userId: fromUserId });
-      if (!angel)
-        throw new Error(`angel not found ${JSON.stringify({ fromUserId })}`);
+      UserError.assert(angel, stateful.t("msg_you_not_angel"), [
+        { fromUserId },
+      ]);
       return {
         type: "reply",
         payload: [
@@ -67,7 +70,7 @@ export const status: CommandHandler = async (
             ? `To reply a mortal, type /reply_to <mortal-user-id>`
             : "",
         ].join("\n"),
-        debugInfo: [{ fromUserId, role }],
+        debugInfo: { fromUserId, role },
       };
     }
     default: {

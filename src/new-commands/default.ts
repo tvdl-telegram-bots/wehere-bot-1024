@@ -1,6 +1,7 @@
 import { CommandHandler } from "../classes/Router";
 import { Stateful } from "../classes/Stateful";
-import { ChatResponse, UserError } from "../types";
+import { ChatResponse } from "../types";
+import { UserError } from "../errors";
 import { expectNonEmptyString } from "../utils/assert";
 import { EMOJI_ANGEL, EMOJI_MORTAL } from "../utils/emojis";
 import { getUsername } from "../utils/usernames";

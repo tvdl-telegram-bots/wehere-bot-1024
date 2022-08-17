@@ -1,5 +1,5 @@
 import { CommandHandler } from "../classes/Router";
-import { UserError } from "../types";
+import { UserError } from "../errors";
 
 export const set_role: CommandHandler = async (
   stateful,
@@ -16,7 +16,7 @@ export const set_role: CommandHandler = async (
   return {
     type: "reply",
     payload: `Success! Your role is set to ${newRole}.`,
-    debugInfo: [update],
+    debugInfo: { update },
   };
 };
 
@@ -31,7 +31,7 @@ export const get_role: CommandHandler = async (
   return {
     type: "reply",
     payload: `You are ${role}.`,
-    debugInfo: [{ fromUserId, role }],
+    debugInfo: { fromUserId, role },
   };
 };
 
@@ -41,6 +41,6 @@ export const unset_role: CommandHandler = async (stateful, { fromUserId }) => {
   return {
     type: "reply",
     payload: `Success! Your role is reset.`,
-    debugInfo: [filter],
+    debugInfo: { filter },
   };
 };

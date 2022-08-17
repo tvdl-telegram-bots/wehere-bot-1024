@@ -1,5 +1,6 @@
 import TelegramBot from "node-telegram-bot-api";
-import { Command, CommandContext, ChatResponse, UserError } from "../types";
+import { Command, CommandContext, ChatResponse } from "../types";
+import { UserError } from "../errors";
 import { expectInteger } from "../utils/assert";
 import { parseArgs } from "../utils/common";
 import { Stateful } from "./Stateful";
@@ -56,12 +57,9 @@ export class Router {
     }
   }
 
-  formatDebugInfo(debugInfo: undefined | unknown[]): string {
+  formatDebugInfo(debugInfo: unknown): string {
     if (!debugInfo) return "";
-    const lines = debugInfo.map((obj) =>
-      typeof obj === "string" ? obj : JSON.stringify(obj)
-    );
-    return "\n\n" + lines.join("\n");
+    return "\n\n" + JSON.stringify(debugInfo);
   }
 
   async respondWith(res: ChatResponse, context: CommandContext) {

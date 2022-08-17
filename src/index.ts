@@ -15,9 +15,10 @@ import { CommandGetLastMessages } from "./classes/commands/CommandGetLastMessage
 import { get_role, set_role, unset_role } from "./new-commands/roles";
 import { get_online_angels } from "./new-commands/angels";
 import { hide_debug, show_debug, start, status } from "./new-commands/general";
+import { default_ } from "./new-commands/default";
+import { get_userid, get_username } from "./new-commands/misc";
 
 import { translations } from "./translations";
-import { default_ } from "./new-commands/default";
 
 async function getI18n() {
   const i18n = I18next.createInstance();
@@ -29,6 +30,7 @@ async function getI18n() {
       vi: { translation: translations.vi },
     },
     debug: true,
+    interpolation: { escapeValue: false },
   });
   return i18n;
 }
@@ -55,6 +57,8 @@ async function main() {
       ["/get_online_angels", get_online_angels],
       ["/show_debug", show_debug],
       ["/hide_debug", hide_debug],
+      ["/get_userid", get_userid],
+      ["/get_username", get_username],
       ["/default", default_],
     ],
     commands: [
