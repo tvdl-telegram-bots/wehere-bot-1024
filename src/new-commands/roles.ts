@@ -6,16 +6,16 @@ export const set_role: CommandHandler = async (
   { args, fromUserId }
 ) => {
   const newRole = args[1];
-  if (args.length !== 2 || !["angel", "mortal"].includes(newRole)) {
-    throw new UserError(
-      "Oops! Invalid syntax.\nSyntax: /set_role <angel|mortal>"
-    );
-  }
+  UserError.assert(
+    args.length === 2 && ["angel", "mortal"].includes(newRole),
+    stateful.t("msg_invalid_syntax", { syntax: "/set_role <angel|mortal>" }),
+    { args, fromUserId }
+  );
   const update = { userId: fromUserId, key: "role", value: newRole };
   await stateful.setUserVariable(update);
   return {
     type: "reply",
-    payload: `Success! Your role is set to ${newRole}.`,
+    payload: stateful.t("msg_your_role_set_to", { role: newRole }),
     debugInfo: { update },
   };
 };
@@ -24,13 +24,14 @@ export const get_role: CommandHandler = async (
   stateful,
   { args, fromUserId }
 ) => {
-  if (args.length !== 1) {
-    throw new UserError("Oops! Invalid syntax.\nSyntax: /get_role");
-  }
+  UserError.assert(
+    args.length === 1,
+    stateful.t("msg_invalid_syntax", { syntax: "/get_role" })
+  );
   const role = await stateful.getRole({ userId: fromUserId });
   return {
     type: "reply",
-    payload: `You are ${role}.`,
+    payload: stateful.t("msg_your_role_is", { role }),
     debugInfo: { fromUserId, role },
   };
 };
@@ -40,7 +41,7 @@ export const unset_role: CommandHandler = async (stateful, { fromUserId }) => {
   await stateful.unsetUserVariable(filter);
   return {
     type: "reply",
-    payload: `Success! Your role is reset.`,
+    payload: stateful.t("msg_your_role_reset"),
     debugInfo: { filter },
   };
 };

@@ -40,6 +40,9 @@ export class Router {
     this.stateful = stateful;
   }
 
+  /**
+   * @deprecated we will switch to new commands soon
+   */
   async runCommand(
     command: Command,
     context: CommandContext
@@ -63,6 +66,8 @@ export class Router {
   }
 
   async respondWith(res: ChatResponse, context: CommandContext) {
+    // TODO: for one user, limit 20 messages per minute
+    // TODO: limit 30 messages per second
     switch (res.type) {
       case "noop":
         break;
@@ -127,7 +132,11 @@ export class Router {
     const text = message.text;
     if (!fromUserId || !text) return;
     await this.stateful.setChat({ userId: fromUserId, chatId });
-    const args = text.startsWith("/") ? parseArgs(text) : ["/default", text];
+    const args = text.startsWith("/__")
+      ? text.slice(3).split("__") // TODO: fix this
+      : text.startsWith("/")
+      ? parseArgs(text)
+      : ["/default", text];
     const context: CommandContext = { chatId, fromUserId, text, args };
     console.log(`> ${JSON.stringify(context)}`);
 
@@ -151,7 +160,7 @@ export class Router {
         return;
       }
 
-      throw new Error(`unknown command ${JSON.stringify({ context })}`);
+      throw new UserError(this.stateful.t("msg_unknown_command"), { context });
     } catch (error) {
       console.error(error);
       if (error instanceof UserError) {

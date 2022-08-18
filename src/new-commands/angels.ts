@@ -18,9 +18,9 @@ export const get_online_angels: CommandHandler = async (stateful, { args }) => {
 };
 
 export const insert_angel: CommandHandler = () => {
-  throw new Error("not implemented");
+  throw new Error("not implemented"); // TODO:
 };
 
 export const delete_angel: CommandHandler = () => {
-  throw new Error("not implemented");
+  throw new Error("not implemented"); // TODO:
 };

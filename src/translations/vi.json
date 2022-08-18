@@ -1,10 +1,27 @@
 {
   "msg_hello": "Xin chào!",
   "msg_hello_username": "Xin chào {{username}}!",
+  "msg_hello_angel_username": "Xin chào angel {{username}}!",
   "msg_you_not_angel": "Bạn không phải là một angel.",
+  "msg_you_online": "Bạn đang online.",
+  "msg_you_offline": "Bạn đang offline.",
+  "msg_you_replying_to_username": "Bạn đang trả lời {{username}}.",
+  "msg_you_not_replying_anyone": "Bạn đang không trả lời mortal nào cả.",
+  "msg_to_stop_receiving_noti": "Để dừng nhận các cập nhật, nhập {{command}}.",
+  "msg_to_start_receiving_noti": "Để bắt đầu nhận các cập nhật, nhập {{command}}.",
+  "msg_to_reply_a_mortal": "Để trả lời một mortal, nhập {{command}}.",
   "msg_invalid_syntax": "Sai cú pháp. {{syntax}}",
   "msg_userid_of_username_is": "Userid của {{username}} là {{userid}}.",
   "msg_cannot_get_username": "Không thể lấy username.",
   "msg_username_of_userid_is": "Username của {{userid}} là {{username}}.",
-  "msg_cannot_get_userid": "Không thể lấy userid."
+  "msg_cannot_get_userid": "Không thể lấy userid.",
+  "msg_welcome_angel": "Chào mừng angel {{username}}! Dưới đây là một số câu lệnh mà bạn có thể thử:",
+  "msg_welcome_mortal": "Chào mừng {{username}}! Hãy nhập các câu hỏi của bạn vào đây nhé.",
+  "msg_invalid_role": "Role không hợp lệ.",
+  "msg_debug_info_shown": "Thông tin debug sẽ được hiện.",
+  "msg_debug_info_hidden": "Thông tin debug sẽ được ẩn.",
+  "msg_your_role_set_to": "Thành công! Role của bạn đã được đặt thành {{role}}.",
+  "msg_your_role_reset": "Thành công! Role của bạn đã được khôi phục.",
+  "msg_your_role_is": "Role của bạn là {{role}}.",
+  "msg_unknown_command": "Câu lệnh không hợp lệ."
 }

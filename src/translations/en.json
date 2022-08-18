@@ -1,10 +1,27 @@
 {
   "msg_hello": "Hello!",
   "msg_hello_username": "Hello {{username}}!",
+  "msg_hello_angel_username": "Hello angel {{username}}!",
   "msg_you_not_angel": "You are not an angel.",
+  "msg_you_online": "You are now online.",
+  "msg_you_offline": "You are now offline.",
+  "msg_you_replying_to_username": "You are replying to {{username}}.",
+  "msg_you_not_replying_anyone": "You are not replying to any mortal.",
+  "msg_to_stop_receiving_noti": "To stop receiving notifications, type {{command}}.",
+  "msg_to_start_receiving_noti": "To start receiving notifications, type {{command}}.",
+  "msg_to_reply_a_mortal": "To reply a mortal, type {{command}}.",
   "msg_invalid_syntax": "Invalid syntax. {{syntax}}",
   "msg_userid_of_username_is": "Userid of {{username}} is {{userid}}.",
   "msg_cannot_get_username": "Cannot get username.",
   "msg_username_of_userid_is": "Username of {{userid}} is {{username}}.",
-  "msg_cannot_get_userid": "Cannot get userid"
+  "msg_cannot_get_userid": "Cannot get userid",
+  "msg_welcome_angel": "Welcome angel {{username}}! Here are some commands that you can try:",
+  "msg_welcome_mortal": "Welcome {{username}}! Just type your questions here.",
+  "msg_invalid_role": "Invalid role.",
+  "msg_debug_info_shown": "Debug info will be shown.",
+  "msg_debug_info_hidden": "Debug info will be hidden.",
+  "msg_your_role_set_to": "Success! Your role is set to {{role}}.",
+  "msg_your_role_reset": "Success! Your role is reset.",
+  "msg_your_role_is": "Your role is {{role}}.",
+  "msg_unknown_command": "Unknown command."
 }

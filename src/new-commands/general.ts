@@ -1,33 +1,30 @@
 import { CommandHandler } from "../classes/Router";
 import { UserError } from "../errors";
+
 import { getUsername } from "../utils/usernames";
 
 export const start: CommandHandler = async (stateful, { fromUserId }) => {
   const role = await stateful.getRole({ userId: fromUserId });
   switch (role) {
-    case "angel": {
+    case "angel":
       return {
         type: "reply",
         payload:
-          `Hello angel ${fromUserId}! Here are some commands that you can try:\n\n` +
+          stateful.t("msg_welcome_angel", {
+            username: getUsername(fromUserId),
+          }) +
+          "\n\n" +
           ["/status"].join("\n"),
       };
-    }
-    case "mortal": {
+    case "mortal":
       return {
         type: "reply",
-        payload: [
-          stateful.t("msg_hello"),
-          `Hello ${fromUserId}!`,
-          `Just type your question. We will be notified and answer you as soon as possible`,
-        ].join("\n"),
+        payload: stateful.t("msg_welcome_mortal", {
+          username: getUsername(fromUserId),
+        }),
       };
-    }
-    default: {
-      throw new TypeError(
-        `invalid role ${JSON.stringify({ role, fromUserId })}`
-      );
-    }
+    default:
+      throw new UserError(stateful.t("msg_invalid_role"), { role, fromUserId });
   }
 };
 
@@ -57,24 +54,36 @@ export const status: CommandHandler = async (
       return {
         type: "reply",
         payload: [
-          `Hello angel ${getUsername(fromUserId)}!`,
-          angel.isOnline ? `You are now online.` : `You are now offline.`,
+          stateful.t("msg_hello_angel_username", {
+            username: getUsername(fromUserId),
+          }),
+          angel.isOnline
+            ? stateful.t("msg_you_online")
+            : stateful.t("msg_you_offline"),
           angel.replyingTo
-            ? `You are replying to ${getUsername(angel.replyingTo)}.`
-            : `You are not replying to any mortal.`,
+            ? stateful.t("msg_you_replying_to_username", {
+                username: getUsername(angel.replyingTo),
+              })
+            : stateful.t("msg_you_not_replying_anyone"),
           "",
           angel.isOnline
-            ? `To stop receiving notifications, type /set_angel_offline`
-            : `To start receiving notifications, type /set_angel_online`,
+            ? stateful.t("msg_to_stop_receiving_noti", {
+                command: "/set_angel_offline",
+              })
+            : stateful.t("msg_to_start_receiving_noti", {
+                command: "/set_angel_online",
+              }),
           angel.isOnline
-            ? `To reply a mortal, type /reply_to <mortal-user-id>`
+            ? stateful.t("msg_to_reply_a_mortal", {
+                command: "/reply_to <mortal-user-id>",
+              })
             : "",
         ].join("\n"),
         debugInfo: { fromUserId, role },
       };
     }
     default: {
-      throw new TypeError(`invalid role ${JSON.stringify({ role })}`);
+      throw new UserError(stateful.t("msg_invalid_role"), { role });
     }
   }
 };
@@ -87,7 +96,7 @@ export const show_debug: CommandHandler = async (stateful, { fromUserId }) => {
   });
   return {
     type: "reply",
-    payload: "Debug info will be shown.",
+    payload: stateful.t("msg_debug_info_shown"),
   };
 };
 
@@ -99,6 +108,6 @@ export const hide_debug: CommandHandler = async (stateful, { fromUserId }) => {
   });
   return {
     type: "reply",
-    payload: "Debug info will be hidden.",
+    payload: stateful.t("msg_debug_info_hidden"),
   };
 };
