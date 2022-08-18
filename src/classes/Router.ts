@@ -1,5 +1,5 @@
 import TelegramBot from "node-telegram-bot-api";
-import { Command, CommandContext, ChatResponse } from "../types";
+import { CommandContext, ChatResponse } from "../types";
 import { UserError } from "../errors";
 import { expectInteger } from "../utils/assert";
 import { parseArgs } from "../utils/common";
@@ -18,46 +18,22 @@ export type CommandHandler = (
 export type NewCommand = [CommandMatcher, CommandHandler];
 
 export class Router {
-  private commands: Command[];
   private newCommands: NewCommand[];
   private bot: TelegramBot;
   private stateful: Stateful;
 
   constructor({
-    commands,
     newCommands,
     bot,
     stateful,
   }: {
-    commands: Command[];
     newCommands: NewCommand[];
     bot: TelegramBot;
     stateful: Stateful;
   }) {
-    this.commands = commands;
     this.newCommands = newCommands;
     this.bot = bot;
     this.stateful = stateful;
-  }
-
-  /**
-   * @deprecated we will switch to new commands soon
-   */
-  async runCommand(
-    command: Command,
-    context: CommandContext
-  ): Promise<ChatResponse> {
-    try {
-      if (!command) {
-        throw new Error(`unknown command ${JSON.stringify({ context })}`);
-      }
-      return await command.handler(context);
-    } catch (error) {
-      return {
-        type: "reply",
-        payload: error instanceof Error ? error.message : JSON.stringify(error),
-      };
-    }
   }
 
   formatDebugInfo(debugInfo: unknown): string {
@@ -137,7 +113,7 @@ export class Router {
       : text.startsWith("/")
       ? parseArgs(text)
       : ["/default", text];
-    const context: CommandContext = { chatId, fromUserId, text, args };
+    const context: CommandContext = { fromUserId, text, args };
     console.log(`> ${JSON.stringify(context)}`);
 
     try {
@@ -147,14 +123,6 @@ export class Router {
       if (matchedNewCommand) {
         const [_, handler] = matchedNewCommand;
         const res = await handler(this.stateful, context);
-        console.log(`< ${JSON.stringify(res)}`);
-        await this.respondWith(res, context);
-        return;
-      }
-
-      const matchedCommand = this.commands.find((cmd) => cmd.match(args));
-      if (matchedCommand) {
-        const res = await this.runCommand(matchedCommand, context);
         console.log(`< ${JSON.stringify(res)}`);
         await this.respondWith(res, context);
         return;

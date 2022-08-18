@@ -22,6 +22,8 @@
   "msg_debug_info_hidden": "Debug info will be hidden.",
   "msg_your_role_set_to": "Success! Your role is set to {{role}}.",
   "msg_your_role_reset": "Success! Your role is reset.",
+  "msg_you_set_online": "Success! You are set to online. You will now receive updates from mortals. To revert, type /set_angel_offline.",
+  "msg_you_set_offline": "Success! You are set to offline. You no longer receive updates from mortals. To revert, type /set_angel_online.",
   "msg_your_role_is": "Your role is {{role}}.",
   "msg_unknown_command": "Unknown command."
 }

@@ -1,9 +1,8 @@
 import * as I18next from "i18next";
 import { Db } from "mongodb";
 import { Angel, Chat, Message, Role } from "../types";
-import { expectInteger, expectString } from "../utils/assert";
 
-type Language = "en" | "vi";
+import { expectInteger, expectString } from "../utils/assert";
 
 export class Stateful {
   private db: Db;
@@ -62,7 +61,7 @@ export class Stateful {
   }) {
     await this.db
       .collection("angels")
-      .updateOne({ userId }, { $set: { isOnline } }, { upsert: true });
+      .updateOne({ userId }, { $set: { isOnline } });
   }
 
   async getOnlineAngels() {
@@ -106,7 +105,7 @@ export class Stateful {
   }) {
     await this.db
       .collection("angels")
-      .updateOne({ userId }, { $set: { replyingTo } }, { upsert: true });
+      .updateOne({ userId }, { $set: { replyingTo } });
   }
 
   async getLastMessages({ limit }: { limit: number }) {

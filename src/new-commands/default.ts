@@ -1,9 +1,10 @@
+import { EMOJI_ANGEL, EMOJI_MORTAL } from "../utils/emojis";
+
 import { CommandHandler } from "../classes/Router";
 import { Stateful } from "../classes/Stateful";
 import { ChatResponse } from "../types";
 import { UserError } from "../errors";
-import { expectNonEmptyString } from "../utils/assert";
-import { EMOJI_ANGEL, EMOJI_MORTAL } from "../utils/emojis";
+
 import { getUsername } from "../utils/usernames";
 
 async function handleMessageFromAngel(
@@ -12,15 +13,9 @@ async function handleMessageFromAngel(
   { fromUserId }: { fromUserId: number }
 ): Promise<ChatResponse> {
   const angel = await stateful.getAngel({ userId: fromUserId });
-  if (!angel) {
-    return { type: "reply", payload: "Hey! You are not an angel." };
-  }
-  if (!angel.isOnline) {
-    return { type: "reply", payload: "You are not online yet." };
-  }
-  if (!angel.replyingTo) {
-    return { type: "reply", payload: "You are not replying to anyone." };
-  }
+  UserError.assert(angel, stateful.t("msg_you_not_angel"));
+  UserError.assert(angel.isOnline, stateful.t("msg_you_offline"));
+  UserError.assert(angel.replyingTo, stateful.t("msg_you_not_replying_anyone"));
   await stateful.addMessage({
     timestamp: Date.now(),
     fromUserId: null,
@@ -79,11 +74,11 @@ export const default_: CommandHandler = async (
   stateful,
   { args, fromUserId }
 ) => {
-  if (args.length !== 2) {
-    throw new UserError("Oops! Invalid syntax.");
-  }
-  const content = expectNonEmptyString(args[1]);
-
+  const content = args[1];
+  UserError.assert(
+    args.length === 2 && content,
+    stateful.t("msg_invalid_syntax", { syntax: "/default <text>" })
+  );
   const role = await stateful.getRole({ userId: fromUserId });
   switch (role) {
     case "angel":
@@ -91,6 +86,6 @@ export const default_: CommandHandler = async (
     case "mortal":
       return handleMessageFromMortal(content, stateful, { fromUserId });
     default:
-      throw new TypeError(`invalid role ${JSON.stringify({ role })}`);
+      throw new UserError(stateful.t("msg_invalid_role"), { role, fromUserId });
   }
 };

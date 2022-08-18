@@ -26,16 +26,9 @@ export type Message = {
 };
 
 export type CommandContext = {
-  /** @deprecated */
-  chatId: number;
   fromUserId: number;
   text: string;
   args: string[];
-};
-
-export type Command = {
-  match: (args: string[]) => boolean;
-  handler: (context: CommandContext) => Promise<ChatResponse>;
 };
 
 export type Angel = {

@@ -34,13 +34,3 @@ Then, start the bot
 ```
 yarn start
 ```
-
-# Role
-
-Each user can be either Angel or Mortal. These are determined by a hard-coded list of user ids. User can override by running `/set role=mortal` or `/set role=angel`. Revert by running `/unset role`.
-
-# State
-
-For Angels, the possible states are: None, AttachedTo chatId
-
-For Mortals, the possible states are: None

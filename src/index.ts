@@ -4,16 +4,17 @@ import { DB_CONN_STRING, DB_NAME, TELEGRAM_BOT_TOKEN } from "./config";
 import TelegramBot from "node-telegram-bot-api";
 import * as I18next from "i18next";
 
-import { CommandReplyTo } from "./classes/commands/CommandReplyTo";
-import { CommandSetAngelOffline } from "./classes/commands/CommandSetAngelOffline";
-import { CommandSetAngelOnline } from "./classes/commands/CommandSetAngelOnline";
 import { MongoClient } from "mongodb";
-import { Router } from "./classes/Router";
+import { NewCommand, Router } from "./classes/Router";
 import { Stateful } from "./classes/Stateful";
-import { CommandGetLastMessages } from "./classes/commands/CommandGetLastMessages";
 
 import { get_role, set_role, unset_role } from "./new-commands/roles";
-import { get_online_angels } from "./new-commands/angels";
+import {
+  get_online_angels,
+  reply_to,
+  set_angel_offline,
+  set_angel_online,
+} from "./new-commands/angels";
 import { hide_debug, show_debug, start, status } from "./new-commands/general";
 import { default_ } from "./new-commands/default";
 import { get_userid, get_username } from "./new-commands/misc";
@@ -41,35 +42,29 @@ async function getDb() {
   return db;
 }
 
+const newCommands: NewCommand[] = [
+  ["/start", start],
+  ["/status", status],
+  ["/set_role", set_role],
+  ["/unset_role", unset_role],
+  ["/get_role", get_role],
+  ["/get_online_angels", get_online_angels],
+  ["/show_debug", show_debug],
+  ["/hide_debug", hide_debug],
+  ["/get_userid", get_userid],
+  ["/get_username", get_username],
+  ["/set_angel_online", set_angel_online],
+  ["/set_angel_offline", set_angel_offline],
+  ["/reply_to", reply_to],
+  ["/default", default_],
+];
+
 async function main() {
   const db = await getDb();
   const i18n = await getI18n();
   const stateful = new Stateful({ db, i18n });
   const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
-
-  const router = new Router({
-    newCommands: [
-      ["/start", start],
-      ["/status", status],
-      ["/set_role", set_role],
-      ["/unset_role", unset_role],
-      ["/get_role", get_role],
-      ["/get_online_angels", get_online_angels],
-      ["/show_debug", show_debug],
-      ["/hide_debug", hide_debug],
-      ["/get_userid", get_userid],
-      ["/get_username", get_username],
-      ["/default", default_],
-    ],
-    commands: [
-      new CommandSetAngelOnline({ stateful }),
-      new CommandSetAngelOffline({ stateful }),
-      new CommandReplyTo({ stateful }),
-      new CommandGetLastMessages({ stateful }),
-    ],
-    bot,
-    stateful,
-  });
+  const router = new Router({ newCommands, bot, stateful });
 
   console.log("Listening for events...");
 

@@ -22,6 +22,8 @@
   "msg_debug_info_hidden": "Thông tin debug sẽ được ẩn.",
   "msg_your_role_set_to": "Thành công! Role của bạn đã được đặt thành {{role}}.",
   "msg_your_role_reset": "Thành công! Role của bạn đã được khôi phục.",
+  "msg_you_set_online": "Thành công! Trạng thái của bạn được đặt thành online. Bạn sẽ nhận được cập nhật từ các mortal. Để hoàn tác, nhập /set_angel_offline.",
+  "msg_you_set_offline": "Thành công! Trạng thái của bạn được đặt thành offline. Bạn không còn nhận được cập nhật từ các mortal. Để hoàn tác, nhập /set_angel_online.",
   "msg_your_role_is": "Role của bạn là {{role}}.",
   "msg_unknown_command": "Câu lệnh không hợp lệ."
 }
