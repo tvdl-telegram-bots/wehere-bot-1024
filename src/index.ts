@@ -3,10 +3,11 @@ import { DB_CONN_STRING, DB_NAME, TELEGRAM_BOT_TOKEN } from "./config";
 
 import TelegramBot from "node-telegram-bot-api";
 import * as I18next from "i18next";
-
 import { MongoClient } from "mongodb";
 import { NewCommand, Router } from "./classes/Router";
 import { Stateful } from "./classes/Stateful";
+
+import { translations } from "./translations";
 
 import { get_role, set_role, unset_role } from "./new-commands/roles";
 import {
@@ -18,8 +19,12 @@ import {
 import { hide_debug, show_debug, start, status } from "./new-commands/general";
 import { default_ } from "./new-commands/default";
 import { get_userid, get_username } from "./new-commands/misc";
-
-import { translations } from "./translations";
+import {
+  add_angel,
+  drop_database,
+  remove_angel,
+  shutdown,
+} from "./new-commands/admin";
 
 async function getI18n() {
   const i18n = I18next.createInstance();
@@ -30,7 +35,6 @@ async function getI18n() {
       en: { translation: translations.en },
       vi: { translation: translations.vi },
     },
-    debug: true,
     interpolation: { escapeValue: false },
   });
   return i18n;
@@ -56,6 +60,10 @@ const newCommands: NewCommand[] = [
   ["/set_angel_online", set_angel_online],
   ["/set_angel_offline", set_angel_offline],
   ["/reply_to", reply_to],
+  ["/drop_database", drop_database],
+  ["/add_angel", add_angel],
+  ["/remove_angel", remove_angel],
+  ["/shutdown", shutdown],
   ["/default", default_],
 ];
 

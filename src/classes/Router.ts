@@ -1,9 +1,9 @@
 import TelegramBot from "node-telegram-bot-api";
 import { CommandContext, ChatResponse } from "../types";
 import { UserError } from "../errors";
-import { expectInteger } from "../utils/assert";
-import { parseArgs } from "../utils/common";
 import { Stateful } from "./Stateful";
+
+import { parseArgsCustomized, sleep } from "../utils/common";
 
 export type CommandMatcher =
   | string
@@ -36,14 +36,10 @@ export class Router {
     this.stateful = stateful;
   }
 
-  formatDebugInfo(debugInfo: unknown): string {
-    if (!debugInfo) return "";
-    return "\n\n" + JSON.stringify(debugInfo);
-  }
-
-  async respondWith(res: ChatResponse, context: CommandContext) {
-    // TODO: for one user, limit 20 messages per minute
-    // TODO: limit 30 messages per second
+  async respondWith(
+    res: ChatResponse,
+    context: { fromUserId: number; chatId: number }
+  ) {
     switch (res.type) {
       case "noop":
         break;
@@ -52,27 +48,28 @@ export class Router {
         const recipientChatId = await this.stateful.getChatId({
           userId: res.payload.toUserId,
         });
-        await this.bot.sendMessage(
-          expectInteger(recipientChatId),
-          res.payload.text
+        UserError.assert(
+          recipientChatId && Number.isFinite(recipientChatId),
+          "!invalid recipient chat id"
         );
+        await this.bot.sendMessage(recipientChatId, res.payload.text);
+        await sleep(35); // Telegram limit: max 30 messages per second
         break;
       }
 
       case "reply": {
-        const senderChatId = await this.stateful.getChatId({
-          userId: context.fromUserId,
-        });
         const shouldShowDebug =
           (await this.stateful.getUserVariable({
             userId: context.fromUserId,
             key: "debug",
           })) === "true";
-        await this.bot.sendMessage(
-          expectInteger(senderChatId),
+        const finalResponse =
           res.payload +
-            (shouldShowDebug ? this.formatDebugInfo(res.debugInfo) : "")
-        );
+          (shouldShowDebug && res.debugInfo !== undefined
+            ? "\n\n" + JSON.stringify(res.debugInfo)
+            : "");
+        await this.bot.sendMessage(context.chatId, finalResponse);
+        await sleep(35); // Telegram limit: max 30 messages per second
         break;
       }
 
@@ -86,6 +83,7 @@ export class Router {
       default:
         throw new Error(`unknown type ${JSON.stringify({ res })}`);
     }
+    await sleep(3000); // Telegram limit: max 20 messages per minute for each user
   }
 
   isNewCommandMatched(matcher: CommandMatcher, context: CommandContext) {
@@ -108,11 +106,7 @@ export class Router {
     const text = message.text;
     if (!fromUserId || !text) return;
     await this.stateful.setChat({ userId: fromUserId, chatId });
-    const args = text.startsWith("/__")
-      ? text.slice(3).split("__") // TODO: fix this
-      : text.startsWith("/")
-      ? parseArgs(text)
-      : ["/default", text];
+    const args = parseArgsCustomized(text);
     const context: CommandContext = { fromUserId, text, args };
     console.log(`> ${JSON.stringify(context)}`);
 
@@ -120,18 +114,25 @@ export class Router {
       const matchedNewCommand = this.newCommands.find(([matcher, _]) =>
         this.isNewCommandMatched(matcher, context)
       );
-      if (matchedNewCommand) {
-        const [_, handler] = matchedNewCommand;
-        const res = await handler(this.stateful, context);
-        console.log(`< ${JSON.stringify(res)}`);
-        await this.respondWith(res, context);
-        return;
-      }
-
-      throw new UserError(this.stateful.t("msg_unknown_command"), { context });
+      UserError.assert(
+        matchedNewCommand,
+        this.stateful.t("msg_unknown_command"),
+        { context }
+      );
+      const [_, handler] = matchedNewCommand;
+      const res = await handler(this.stateful, context);
+      console.log(`< ${JSON.stringify(res)}`);
+      await this.respondWith(res, { fromUserId, chatId });
+      return;
     } catch (error) {
       console.error(error);
-      if (error instanceof UserError) {
+      if (process.exitCode !== undefined) {
+        await this.bot.sendMessage(
+          chatId,
+          error instanceof Error ? error.message : JSON.stringify(error)
+        );
+        setTimeout(() => process.exit(), 1000);
+      } else if (error instanceof UserError) {
         await this.bot.sendMessage(chatId, error.message);
       } else if (error instanceof Error) {
         await this.bot.sendMessage(chatId, error.message);

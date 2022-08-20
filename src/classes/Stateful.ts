@@ -77,6 +77,15 @@ export class Stateful {
       .findOne({ userId })) as unknown as Angel | undefined;
   }
 
+  async addAngel({ userId }: { userId: number }) {
+    const angel: Angel = { userId, isOnline: false, replyingTo: null };
+    await this.db.collection("angels").insertOne(angel);
+  }
+
+  async removeAngel({ userId }: { userId: number }) {
+    await this.db.collection("angels").deleteOne({ userId });
+  }
+
   async setChat(chat: Chat) {
     await this.db
       .collection("chats")
@@ -115,6 +124,10 @@ export class Stateful {
       .sort({ timestamp: -1 })
       .limit(limit)
       .toArray()) as unknown as Message[];
+  }
+
+  async dropDatabase() {
+    return await this.db.dropDatabase();
   }
 
   t(keys: string | string[], options?: I18next.TOptions): string {

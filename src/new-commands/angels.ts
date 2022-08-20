@@ -4,27 +4,20 @@ import { UserError } from "../errors";
 import { getUserid, getUsername } from "../utils/usernames";
 
 export const get_online_angels: CommandHandler = async (stateful, { args }) => {
-  if (args.length !== 1) {
-    throw new UserError("Opps! Invalid Syntax.\nSyntax: /get_online_angels");
-  }
+  UserError.assert(
+    args.length === 1,
+    stateful.t("msg_invalid_syntax", { syntax: "/get_online_angels" })
+  );
   const angels = await stateful.getOnlineAngels();
   return {
     type: "reply",
     payload:
       angels.length === 0
-        ? "No online angels :("
-        : `${angels.length} angels are online:\n\n` +
-          angels.map((angel) => `${angel.userId}`).join("\n"),
+        ? "No online angels :(" // TODO: translate
+        : `${angels.length} angels are online:\n\n` + // TODO: translate
+          angels.map((angel) => `${getUsername(angel.userId)}`).join("\n"),
     debugInfo: { angels },
   };
-};
-
-export const insert_angel: CommandHandler = () => {
-  throw new Error("not implemented"); // TODO:
-};
-
-export const delete_angel: CommandHandler = () => {
-  throw new Error("not implemented"); // TODO:
 };
 
 export const set_angel_online: CommandHandler = async (

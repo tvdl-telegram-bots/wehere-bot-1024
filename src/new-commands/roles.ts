@@ -11,6 +11,8 @@ export const set_role: CommandHandler = async (
     stateful.t("msg_invalid_syntax", { syntax: "/set_role <angel|mortal>" }),
     { args, fromUserId }
   );
+  const angel = await stateful.getAngel({ userId: fromUserId });
+  UserError.assert(angel, stateful.t("msg_you_not_angel"));
   const update = { userId: fromUserId, key: "role", value: newRole };
   await stateful.setUserVariable(update);
   return {
@@ -28,6 +30,8 @@ export const get_role: CommandHandler = async (
     args.length === 1,
     stateful.t("msg_invalid_syntax", { syntax: "/get_role" })
   );
+  const angel = await stateful.getAngel({ userId: fromUserId });
+  UserError.assert(angel, stateful.t("msg_you_not_angel"));
   const role = await stateful.getRole({ userId: fromUserId });
   return {
     type: "reply",
@@ -37,6 +41,8 @@ export const get_role: CommandHandler = async (
 };
 
 export const unset_role: CommandHandler = async (stateful, { fromUserId }) => {
+  const angel = await stateful.getAngel({ userId: fromUserId });
+  UserError.assert(angel, stateful.t("msg_you_not_angel"));
   const filter = { userId: fromUserId, key: "role" };
   await stateful.unsetUserVariable(filter);
   return {
