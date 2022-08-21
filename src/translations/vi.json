@@ -25,5 +25,10 @@
   "msg_you_set_online": "Thành công! Trạng thái của bạn được đặt thành online. Bạn sẽ nhận được cập nhật từ các mortal. Để hoàn tác, nhập /set_angel_offline.",
   "msg_you_set_offline": "Thành công! Trạng thái của bạn được đặt thành offline. Bạn không còn nhận được cập nhật từ các mortal. Để hoàn tác, nhập /set_angel_online.",
   "msg_your_role_is": "Role của bạn là {{role}}.",
+  "msg_no_angels_online": "Không angels nào đang online.",
+  "msg_count_angels_online": "{{count}} angel đang online:",
+  "msg_no_messages_found": "Không tìm thấy tin nhắn nào",
+  "msg_to_get_messages_before_type_syntax": "Để đọc các tin nhắn trước đó, nhập {{syntax}}.",
+  "msg_to_get_messages_after_type_syntax": "Để đọc các tin nhắn sau đó, nhập {{syntax}}.",
   "msg_unknown_command": "Câu lệnh không hợp lệ."
 }

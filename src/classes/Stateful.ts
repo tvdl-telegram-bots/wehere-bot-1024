@@ -117,13 +117,47 @@ export class Stateful {
       .updateOne({ userId }, { $set: { replyingTo } });
   }
 
-  async getLastMessages({ limit }: { limit: number }) {
-    return (await this.db
+  // async getLastMessages({ limit }: { limit: number }) {
+  //   return (await this.db
+  //     .collection("messages")
+  //     .find()
+  //     .sort({ timestamp: -1 })
+  //     .limit(limit)
+  //     .toArray()) as unknown as Message[];
+  // }
+
+  async getMessagesStrictlyBefore({
+    timestamp,
+    limit,
+  }: {
+    timestamp: number;
+    limit: number;
+  }) {
+    const messages: Message[] = (await this.db
       .collection("messages")
-      .find()
+      .find({ timestamp: { $lt: timestamp } })
+      .sort({ timestamp: 1 })
+      .limit(limit)
+      .toArray()) as any[];
+    messages.sort((a, b) => a.timestamp - b.timestamp);
+    return messages;
+  }
+
+  async getMessagesStrictlyAfter({
+    timestamp,
+    limit,
+  }: {
+    timestamp: number;
+    limit: number;
+  }) {
+    const messages: Message[] = (await this.db
+      .collection("messages")
+      .find({ timestamp: { $gt: timestamp } })
       .sort({ timestamp: -1 })
       .limit(limit)
-      .toArray()) as unknown as Message[];
+      .toArray()) as any[];
+    messages.sort((a, b) => a.timestamp - b.timestamp);
+    return messages;
   }
 
   async dropDatabase() {

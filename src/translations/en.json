@@ -25,5 +25,10 @@
   "msg_you_set_online": "Success! You are set to online. You will now receive updates from mortals. To revert, type /set_angel_offline.",
   "msg_you_set_offline": "Success! You are set to offline. You no longer receive updates from mortals. To revert, type /set_angel_online.",
   "msg_your_role_is": "Your role is {{role}}.",
+  "msg_no_angels_online": "No angels are online.",
+  "msg_count_angels_online": "{{count}} angels are online:",
+  "msg_no_messages_found": "No messages found.",
+  "msg_to_get_messages_before_type_syntax": "To get messages before, type {{syntax}}.",
+  "msg_to_get_messages_after_type_syntax": "To get messages after, type {{syntax}}.",
   "msg_unknown_command": "Unknown command."
 }

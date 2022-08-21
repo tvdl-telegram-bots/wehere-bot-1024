@@ -11,6 +11,7 @@ import { translations } from "./translations";
 
 import { get_role, set_role, unset_role } from "./new-commands/roles";
 import {
+  get_messages,
   get_online_angels,
   reply_to,
   set_angel_offline,
@@ -53,6 +54,7 @@ const newCommands: NewCommand[] = [
   ["/unset_role", unset_role],
   ["/get_role", get_role],
   ["/get_online_angels", get_online_angels],
+  ["/get_messages", get_messages],
   ["/show_debug", show_debug],
   ["/hide_debug", hide_debug],
   ["/get_userid", get_userid],
