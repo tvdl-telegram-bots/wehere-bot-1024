@@ -22,7 +22,14 @@ Already up-to-date.
 
 First, set up environment variables:
 
+```sh
+cp .env.example .env
+# remember to edit .env
 ```
+
+or
+
+```sh
 export TELEGRAM_BOT_TOKEN=0000000000:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 export NTBA_FIX_319=true
 ```
